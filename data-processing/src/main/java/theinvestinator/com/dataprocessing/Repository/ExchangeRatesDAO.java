@@ -28,14 +28,12 @@ public class ExchangeRatesDAO {
 
     // Connect to database
     @PostConstruct
-    private void postConstruct() throws IOException, ParseException {
-        //getDataFromAPI("https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=USD&to_symbol=TRY&apikey=XWBDXMKNOIU6106B", "Time Series FX (Daily)");
-        getDataFromAPI("https://www.alphavantage.co/query?function=FX_INTRADAY&from_symbol=USD&to_symbol=TRY&interval=1min&apikey=XWBDXMKNOIU6106B", "Time Series FX (1min)", "Exchange_Rates");
-        jdbcTemplate = new JdbcTemplate(this.dataSource);
+    private void postConstruct() {
+        jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     //fetch data from API, process and save them in array list
-    private void getDataFromAPI(String api, String path, String tableName) throws IOException, ParseException {
+    public void getDataFromAPI(String api, String path, String tableName) throws IOException, ParseException {
         URL url = new URL(api);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(url);
@@ -55,16 +53,20 @@ public class ExchangeRatesDAO {
         elements = rootNode.path(path).fields();
         while (elements.hasNext()) {
             Map.Entry<String, JsonNode> rate = elements.next();
+            String date = rate.getKey();
 
             //convert String type from JSON data to Date type
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat dateFormat;
+            if (date.contains(":"))
+                dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            else
+                dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             //change date time to local date time
             dateFormat.setTimeZone(timeZone);
-            Date date = dateFormat.parse(rate.getKey());
+            Date localDateTime = dateFormat.parse(date);
 
-            addExchangeRate(tableName, new ExchangeRatesModel(rate.getValue().get("4. close").doubleValue(), date));
+            addExchangeRate(tableName, new ExchangeRatesModel(localDateTime, rate.getValue().get("4. close").asDouble()));
         }
-        System.out.println(listAllExchangeRates(tableName).size() + " entries added!");
 
     }
 
@@ -76,7 +78,7 @@ public class ExchangeRatesDAO {
     public void addExchangeRate(String tableName, ExchangeRatesModel exchangeRate) {
         String sql = "INSERT INTO " + tableName + " VALUES (?, ?)";
         try {
-            jdbcTemplate.update(sql, new Object[]{exchangeRate.getLocalDateTime(), exchangeRate.getTRYValue()});
+            jdbcTemplate.update(sql, exchangeRate.getLocalDateTime(), exchangeRate.getTRYValue());
         } catch (DataIntegrityViolationException e) {
             e.printStackTrace();
         }

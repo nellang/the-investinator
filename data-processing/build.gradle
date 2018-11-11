@@ -26,6 +26,6 @@ repositories {
 dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-web')
 	compile('org.springframework.boot:spring-boot-starter-jdbc')
-	runtimeOnly('com.microsoft.sqlserver:mssql-jdbc')
+	compile('com.microsoft.sqlserver:mssql-jdbc')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 }

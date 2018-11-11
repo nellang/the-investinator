@@ -1,8 +1,7 @@
-IF OBJECT_ID ('Exchange_Rates', 'U') IS NULL
-  CREATE TABLE Exchange_Rates (
-    LocalDateTime  DATETIME NOT NULL ,
-    TRY DECIMAL(10,2) NOT NULL ,
-    PRIMARY KEY (LocalDateTime)
-  );
-
-
+IF OBJECT_ID ('Exchange_Rates', 'U') IS NOT NULL
+  DROP TABLE Exchange_Rates;
+CREATE TABLE Exchange_Rates (
+  LocalDateTime  DATETIME NOT NULL ,
+  TRY DECIMAL(10,4) NOT NULL ,
+  PRIMARY KEY (LocalDateTime)
+);

@@ -4,16 +4,16 @@ import java.util.Date;
 
 public class ExchangeRatesModel {
 
-    private double TRYValue;
     private Date localDateTime;
+    private double TRYValue;
 
     public ExchangeRatesModel() {
 
     }
 
-    public ExchangeRatesModel(double TRYValue, Date localDateTime) {
-        this.TRYValue = TRYValue;
+    public ExchangeRatesModel(Date localDateTime, double TRYValue) {
         this.localDateTime = localDateTime;
+        this.TRYValue = TRYValue;
     }
 
     public double getTRYValue() {

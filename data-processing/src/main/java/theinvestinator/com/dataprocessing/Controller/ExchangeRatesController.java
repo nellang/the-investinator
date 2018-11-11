@@ -7,20 +7,27 @@ import org.springframework.web.servlet.ModelAndView;
 import theinvestinator.com.dataprocessing.Model.ExchangeRatesModel;
 import theinvestinator.com.dataprocessing.Repository.ExchangeRatesDAO;
 
+import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.List;
 
 @Controller
 public class ExchangeRatesController {
 
-    /*@Autowired
+    @Autowired
     private ExchangeRatesDAO exchangeRatesDAO;
 
     @GetMapping(value = {"/", "/index"})
-    public ModelAndView listAllCompanies() throws SQLException {
+    public ModelAndView listAllCompanies() throws IOException, ParseException {
         ModelAndView model = new ModelAndView("index");
         List<ExchangeRatesModel> exchangeRatesList = exchangeRatesDAO.listAllExchangeRates("Exchange_Rates");
         model.addObject("exchangeRatesList", exchangeRatesList);
+
+        exchangeRatesDAO.getDataFromAPI("https://www.alphavantage.co/query?function=FX_INTRADAY&from_symbol=USD&to_symbol=TRY&interval=1min&apikey=XWBDXMKNOIU6106B", "Time Series FX (1min)", "Exchange_Rates");
+        exchangeRatesDAO.getDataFromAPI("https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=USD&to_symbol=TRY&apikey=XWBDXMKNOIU6106B", "Time Series FX (Daily)", "Exchange_Rates");
+        exchangeRatesDAO.getDataFromAPI("https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=USD&to_symbol=TRY&apikey=XWBDXMKNOIU6106B", "Time Series FX (Monthly)", "Exchange_Rates");
+
         return model;
-    }*/
+    }
 }
