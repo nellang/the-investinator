@@ -92,5 +92,4 @@ public class ExchangeRatesDAO {
         Integer countRate = jdbcTemplate.queryForObject(sql, new Object[]{exchangeRate.getLocalDateTime()}, Integer.class);
         return (countRate != null);
     }
-
 }

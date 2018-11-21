@@ -27,7 +27,6 @@ public class ExchangeRatesController {
         exchangeRatesDAO.getDataFromAPI("https://www.alphavantage.co/query?function=FX_INTRADAY&from_symbol=TRY&to_symbol=USD&interval=1min&apikey=XWBDXMKNOIU6106B", "Time Series FX (1min)", "Exchange_Rates");
         exchangeRatesDAO.getDataFromAPI("https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=TRY&to_symbol=USD&apikey=XWBDXMKNOIU6106B", "Time Series FX (Daily)", "Exchange_Rates");
         exchangeRatesDAO.getDataFromAPI("https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=TRY&to_symbol=USD&apikey=XWBDXMKNOIU6106B", "Time Series FX (Monthly)", "Exchange_Rates");
-
         return model;
     }
 }
