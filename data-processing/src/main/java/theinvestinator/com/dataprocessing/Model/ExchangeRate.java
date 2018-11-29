@@ -1,18 +1,30 @@
 package theinvestinator.com.dataprocessing.Model;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
-public class ExchangeRateModel {
+@Entity
+@Table(name = "Exchange_Rate")
+public class ExchangeRate {
 
+    @Id
+    @Column(name = "exchange_rate_id", nullable = false)
     private Date localDateTime;
+
+    @Column(name = "currency_id", nullable = false)
     private int currencyID;
+
+    @Column(name = "value", nullable = false)
     private double value;
 
-    public ExchangeRateModel() {
+    public ExchangeRate() {
 
     }
 
-    public ExchangeRateModel(Date localDateTime, int currencyID, double value) {
+    public ExchangeRate(Date localDateTime, int currencyID, double value) {
         this.localDateTime = localDateTime;
         this.currencyID = currencyID;
         this.value = value;

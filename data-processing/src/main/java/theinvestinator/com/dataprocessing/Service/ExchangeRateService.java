@@ -2,8 +2,11 @@ package theinvestinator.com.dataprocessing.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import theinvestinator.com.dataprocessing.Model.ExchangeRateModel;
+import theinvestinator.com.dataprocessing.Model.ExchangeRate;
+import theinvestinator.com.dataprocessing.Repository.CurrencyRepository;
+import theinvestinator.com.dataprocessing.Repository.ExchangeRateRepository;
 
 import java.io.IOException;
 import java.net.URL;
@@ -17,16 +20,24 @@ import java.util.TimeZone;
 @Service
 public class ExchangeRateService {
 
+    @Autowired
+    private ExchangeRateRepository exchangeRateRepository;
+
+    @Autowired
+    private CurrencyRepository currencyRepository;
+
     //fetch data from API, process and save them in array list
-    public void getDataFromAPI(int currencyID, String apiType, String path, String tableName) throws IOException, ParseException {
-        URL url;
-        String currency = findCurrency(currencyID);
+    public void getDataFromAPI(int currencyID, String apiType, String path) throws IOException, ParseException {
+        String url;
+        String currency = currencyRepository.findById(currencyID).getName();
         if (currency.equals("USD"))
-            url = new URL("https://www.alphavantage.co/query?function=" + apiType + "&from_symbol=" + currency + "&to_symbol=EUR&interval=1min&apikey=XWBDXMKNOIU6106B");
+            url = "https://www.alphavantage.co/query?function=" + apiType + "&from_symbol=" + currency + "&to_symbol=EUR";
         else
-            url = new URL("https://www.alphavantage.co/query?function=" + apiType + "&from_symbol=" + currency + "&to_symbol=USD&interval=1min&apikey=XWBDXMKNOIU6106B");
+            url = "https://www.alphavantage.co/query?function=" + apiType + "&from_symbol=" + currency + "&to_symbol=USD";
+        if (apiType.contains("INTRADAY"))
+            url += "&interval=1min";
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(url);
+        JsonNode rootNode = objectMapper.readTree(new URL(url + "&apikey=XWBDXMKNOIU6106B"));
 
         //get time zone of API data
         TimeZone timeZone = TimeZone.getDefault();
@@ -47,7 +58,7 @@ public class ExchangeRateService {
 
             //convert String type from JSON data to Date type
             SimpleDateFormat dateFormat;
-            if (apiType.equals("FX_INTRADAY"))
+            if (apiType.contains("INTRADAY"))
                 dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             else
                 dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -55,7 +66,8 @@ public class ExchangeRateService {
             dateFormat.setTimeZone(timeZone);
             Date localDateTime = dateFormat.parse(date);
 
-            addExchangeRate(tableName, new ExchangeRateModel(localDateTime, currencyID, rate.getValue().get("4. close").asDouble()));
+            if (!exchangeRateRepository.existsById(localDateTime))
+                exchangeRateRepository.save(new ExchangeRate(localDateTime, currencyID, rate.getValue().get("4. close").asDouble()));
         }
 
     }

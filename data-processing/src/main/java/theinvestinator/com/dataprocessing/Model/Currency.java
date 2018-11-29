@@ -1,17 +1,24 @@
 package theinvestinator.com.dataprocessing.Model;
 
-import java.util.Date;
+import javax.persistence.*;
 
-public class CurrencyModel {
+@Entity
+@Table(name = "Currency")
+public class Currency {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "currency_id", nullable = false)
     private int currencyID;
+
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    public CurrencyModel() {
+    public Currency() {
 
     }
 
-    public CurrencyModel(int currencyID, String name) {
+    public Currency(int currencyID, String name) {
         this.currencyID = currencyID;
         this.name = name;
     }

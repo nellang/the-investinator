@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.text.ParseException;
 
 @Controller
-public class ExchangeRateController {
+public class DataProcessingController {
 
     @Autowired
     private ExchangeRateService exchangeRateService;
@@ -18,12 +18,12 @@ public class ExchangeRateController {
     @GetMapping(value = {"/", "/index"})
     public ModelAndView listAllCompanies() throws IOException, ParseException {
         ModelAndView model = new ModelAndView("index");
-        //List<ExchangeRateModel> exchangeRatesList = exchangeRatesDAO.listAllExchangeRates("Exchange_Rate");
+        //List<ExchangeRate> exchangeRatesList = exchangeRatesDAO.listAllExchangeRates("Exchange_Rate");
         //model.addObject("exchangeRatesList", exchangeRatesList);
 
-        exchangeRateService.getDataFromAPI("https://www.alphavantage.co/query?function=FX_INTRADAY&from_symbol=TRY&to_symbol=USD&interval=1min&apikey=XWBDXMKNOIU6106B", "Time Series FX (1min)", "Exchange_Rate");
-        exchangeRateService.getDataFromAPI("https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=TRY&to_symbol=USD&apikey=XWBDXMKNOIU6106B", "Time Series FX (Daily)", "Exchange_Rate");
-        exchangeRateService.getDataFromAPI("https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=TRY&to_symbol=USD&apikey=XWBDXMKNOIU6106B", "Time Series FX (Monthly)", "Exchange_Rate");
+        exchangeRateService.getDataFromAPI(1, "FX_INTRADAY", "Time Series FX (1min)");
+        exchangeRateService.getDataFromAPI(1, "FX_DAILY", "Time Series FX (Daily)");
+        exchangeRateService.getDataFromAPI(1, "FX_MONTHLY", "Time Series FX (Monthly)");
         return model;
     }
 }
