@@ -1,23 +1,22 @@
 package theinvestinator.com.dataprocessing.Model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
-@Entity
+@Entity(name = "Real_GDP_Growth_Rate")
+@NamedQuery(name = "GDP_RATE.findByDate", query = "SELECT COUNT(r) FROM Real_GDP_Growth_Rate r WHERE r.date =:date")
 @Table(name = "Real_GDP_Growth_Rate")
 public class RealGDPRate {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "real_gdp_growth_rate_id", nullable = false)
     private int gdpRateID;
 
     @Column(name = "country_id", nullable = false)
     private int countryID;
 
-    @Column(name = "date", nullable = false)
+    @Column(name = "date", nullable = false, unique = true)
     private Date date;
 
     @Column(name = "value", nullable = false)
@@ -27,8 +26,7 @@ public class RealGDPRate {
 
     }
 
-    public RealGDPRate(int gdpRateID, int countryID, Date date, double value) {
-        this.gdpRateID = gdpRateID;
+    public RealGDPRate(int countryID, Date date, double value) {
         this.countryID = countryID;
         this.date = date;
         this.value = value;

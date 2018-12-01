@@ -26,8 +26,18 @@ public class ExchangeRateService {
     @Autowired
     private CurrencyRepository currencyRepository;
 
-    //fetch data from API, process and save them in array list
-    public void getDataFromAPI(int currencyID, String apiType, String path) throws IOException, ParseException {
+    public void saveExchangeRate() {
+        currencyRepository.findAll().forEach(currency -> {
+            int currencyID = currency.getCurrencyID();
+            getExchangeRateData(currencyID, "FX_INTRADAY", "Time Series FX (1min)");
+            getExchangeRateData(currencyID, "FX_DAILY", "Time Series FX (Daily)");
+            getExchangeRateData(currencyID, "FX_MONTHLY", "Time Series FX (Monthly)");
+        });
+    }
+
+    //fetch data from API, process and save them in database
+    private void getExchangeRateData(int currencyID, String apiType, String path) {
+        //access to exchange rate API from alphavantage in JSON format
         String url;
         String currency = currencyRepository.findById(currencyID).getName();
         if (currency.equals("USD"))
@@ -37,7 +47,18 @@ public class ExchangeRateService {
         if (apiType.contains("INTRADAY"))
             url += "&interval=1min";
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(new URL(url + "&apikey=XWBDXMKNOIU6106B"));
+        JsonNode rootNode = null;
+
+        try {
+            rootNode = objectMapper.readTree(new URL(url + "&apikey=XWBDXMKNOIU6106B"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (rootNode == null) {
+            System.out.println("JSON not found!");
+            return;
+        }
 
         //get time zone of API data
         TimeZone timeZone = TimeZone.getDefault();
@@ -64,11 +85,18 @@ public class ExchangeRateService {
                 dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             //change date time to local date time
             dateFormat.setTimeZone(timeZone);
-            Date localDateTime = dateFormat.parse(date);
+            Date localDateTime = new Date();
+            try {
+                localDateTime = dateFormat.parse(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
 
-            if (!exchangeRateRepository.existsById(localDateTime))
-                exchangeRateRepository.save(new ExchangeRate(localDateTime, currencyID, rate.getValue().get("4. close").asDouble()));
+            double value = rate.getValue().get("4. close").asDouble();
+            if (!exchangeRateRepository.existsById(localDateTime)) {
+                System.out.println(localDateTime + ": 1 " + currency + " = " + value + " USD added!");
+                exchangeRateRepository.save(new ExchangeRate(localDateTime, currencyID, value));
+            }
         }
-
     }
 }

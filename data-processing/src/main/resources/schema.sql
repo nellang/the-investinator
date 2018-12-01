@@ -31,9 +31,10 @@ IF OBJECT_ID('Country', 'U') IS NULL
   BEGIN
     CREATE TABLE [dbo].[Country]
     (
-      [country_id]  smallint    NOT NULL IDENTITY (1,1),
-      [currency_id] smallint    NOT NULL,
-      [name]        VARCHAR(50) NOT NULL UNIQUE,
+      [country_id]   smallint    NOT NULL IDENTITY (1,1),
+      [currency_id]  smallint    NOT NULL,
+      [name]         VARCHAR(50) NOT NULL UNIQUE,
+      [abbreviation] CHAR(10)    NOT NULL,
 
       CONSTRAINT [PK_Country] PRIMARY KEY CLUSTERED ([country_id] ASC),
       CONSTRAINT [currency_assignment] FOREIGN KEY ([currency_id]) REFERENCES [dbo].[Currency] ([currency_id])
@@ -48,7 +49,7 @@ IF OBJECT_ID('Unemployment_Rate', 'U') IS NULL
     (
       [unemployment_rate_id] int           NOT NULL IDENTITY (1,1),
       [country_id]           smallint      NOT NULL,
-      [date]                 date          NOT NULL,
+      [date]                 date          NOT NULL UNIQUE,
       [value]                decimal(10,2) NOT NULL,
 
       CONSTRAINT [PK_Unemployment_Rate] PRIMARY KEY CLUSTERED ([unemployment_rate_id] ASC),
@@ -64,7 +65,7 @@ IF OBJECT_ID('Real_GDP_Growth_Rate', 'U') IS NULL
     (
       [real_gdp_growth_rate_id] int           NOT NULL IDENTITY (1,1),
       [country_id]              smallint      NOT NULL,
-      [date]                    date          NOT NULL,
+      [date]                    date          NOT NULL UNIQUE,
       [value]                   decimal(20,6) NOT NULL,
 
       CONSTRAINT [PK_Real_GDP_Growth_Rate] PRIMARY KEY CLUSTERED ([real_gdp_growth_rate_id] ASC),
@@ -80,7 +81,7 @@ IF OBJECT_ID('Real_GDP', 'U') IS NULL
     (
       [real_gdp_id] int           NOT NULL IDENTITY (1,1),
       [country_id]  smallint      NOT NULL,
-      [date]        date          NOT NULL,
+      [date]        date          NOT NULL UNIQUE,
       [value]       decimal(20,6) NOT NULL,
 
       CONSTRAINT [PK_Real_GDP] PRIMARY KEY CLUSTERED ([real_gdp_id] ASC),
@@ -96,7 +97,7 @@ IF OBJECT_ID('Labor_Cost_Index', 'U') IS NULL
     (
       [labor_cost_index_id] int           NOT NULL IDENTITY (1,1),
       [country_id]          smallint      NOT NULL,
-      [date]                date          NOT NULL,
+      [date]                date          NOT NULL UNIQUE,
       [value]               decimal(20,5) NOT NULL,
 
       CONSTRAINT [PK_Labor_Cost_Index] PRIMARY KEY CLUSTERED ([labor_cost_index_id] ASC),
@@ -112,7 +113,7 @@ IF OBJECT_ID('Inflation_Rate', 'U') IS NULL
     (
       [inflation_rate_id] int            NOT NULL IDENTITY (1,1),
       [country_id]        smallint       NOT NULL,
-      [date]              date           NOT NULL,
+      [date]              date           NOT NULL UNIQUE,
       [value]             decimal(20,15) NOT NULL,
 
       CONSTRAINT [PK_Inflation_Rate] PRIMARY KEY CLUSTERED ([inflation_rate_id] ASC),
@@ -128,7 +129,7 @@ IF OBJECT_ID('Imports_Of_Goods_And_Services', 'U') IS NULL
     (
       [imports_of_goods_and_services_id] int            NOT NULL IDENTITY (1,1),
       [country_id]                       smallint       NOT NULL,
-      [date]                             date           NOT NULL,
+      [date]                             date           NOT NULL UNIQUE,
       [value]                            decimal(20,13) NOT NULL,
 
       CONSTRAINT [PK_Imports_Of_Goods_And_Services] PRIMARY KEY CLUSTERED ([imports_of_goods_and_services_id] ASC),
@@ -147,7 +148,7 @@ IF OBJECT_ID('Exports_Of_Goods_And_Services', 'U') IS NULL
     (
       [exports_of_goods_and_services_id] int            NOT NULL IDENTITY (1,1),
       [country_id]                       smallint       NOT NULL,
-      [date]                             date           NOT NULL,
+      [date]                             date           NOT NULL UNIQUE,
       [value]                            decimal(20,13) NOT NULL,
 
       CONSTRAINT [PK_Exports_Of_Goods_And_Services] PRIMARY KEY CLUSTERED ([exports_of_goods_and_services_id] ASC),
@@ -166,7 +167,7 @@ IF OBJECT_ID('Business_Registration_Procedures', 'U') IS NULL
     (
       [business_registration_procedures_id] int            NOT NULL IDENTITY (1,1),
       [country_id]                          smallint       NOT NULL,
-      [date]                                date           NOT NULL,
+      [date]                                date           NOT NULL UNIQUE,
       [value]                               decimal(18,14) NOT NULL,
 
       CONSTRAINT [PK_Business_Registration_Procedures] PRIMARY KEY CLUSTERED ([business_registration_procedures_id] ASC),

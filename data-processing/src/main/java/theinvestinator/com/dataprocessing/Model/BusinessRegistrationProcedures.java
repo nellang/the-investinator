@@ -1,9 +1,6 @@
 package theinvestinator.com.dataprocessing.Model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -11,13 +8,14 @@ import java.util.Date;
 public class BusinessRegistrationProcedures {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "business_registration_procedures_id", nullable = false)
     private int registrationProceduresID;
 
     @Column(name = "country_id", nullable = false)
     private int countryID;
 
-    @Column(name = "date", nullable = false)
+    @Column(name = "date", nullable = false, unique = true)
     private Date date;
 
     @Column(name = "value", nullable = false)
@@ -27,8 +25,7 @@ public class BusinessRegistrationProcedures {
 
     }
 
-    public BusinessRegistrationProcedures(int registrationProceduresID, int countryID, Date date, double value) {
-        this.registrationProceduresID = registrationProceduresID;
+    public BusinessRegistrationProcedures(int countryID, Date date, double value) {
         this.countryID = countryID;
         this.date = date;
         this.value = value;
