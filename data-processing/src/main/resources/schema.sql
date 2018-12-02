@@ -5,7 +5,7 @@
 IF OBJECT_ID('Currency', 'U') IS NULL
 CREATE TABLE [dbo].[Currency]
 (
-  [currency_id] smallint    NOT NULL IDENTITY (1,1),
+  [currency_id] INT         NOT NULL IDENTITY (1,1),
   [name]        VARCHAR(50) NOT NULL UNIQUE,
 
   CONSTRAINT [PK_Currency] PRIMARY KEY CLUSTERED ([currency_id] ASC)
@@ -16,8 +16,9 @@ IF OBJECT_ID('Exchange_Rate', 'U') IS NULL
   BEGIN
     CREATE TABLE [dbo].[Exchange_Rate]
     (
-      [exchange_rate_id] datetime      NOT NULL,
-      [currency_id]      smallint      NOT NULL,
+      [exchange_rate_id] INT           NOT NULL IDENTITY (1,1),
+      [date]             datetime      NOT NULL,
+      [currency_id]      INT           NOT NULL,
       [value]            decimal(10,5) NOT NULL,
 
       CONSTRAINT [PK_Exchange_Rate] PRIMARY KEY CLUSTERED ([exchange_rate_id] DESC),
@@ -31,10 +32,10 @@ IF OBJECT_ID('Country', 'U') IS NULL
   BEGIN
     CREATE TABLE [dbo].[Country]
     (
-      [country_id]   smallint    NOT NULL IDENTITY (1,1),
-      [currency_id]  smallint    NOT NULL,
+      [country_id]   INT         NOT NULL IDENTITY (1,1),
+      [currency_id]  INT         NOT NULL,
       [name]         VARCHAR(50) NOT NULL UNIQUE,
-      [abbreviation] CHAR(10)    NOT NULL,
+      [abbreviation] CHAR(10)    NOT NULL UNIQUE,
 
       CONSTRAINT [PK_Country] PRIMARY KEY CLUSTERED ([country_id] ASC),
       CONSTRAINT [currency_assignment] FOREIGN KEY ([currency_id]) REFERENCES [dbo].[Currency] ([currency_id])
@@ -47,9 +48,9 @@ IF OBJECT_ID('Unemployment_Rate', 'U') IS NULL
   BEGIN
     CREATE TABLE [dbo].[Unemployment_Rate]
     (
-      [unemployment_rate_id] int           NOT NULL IDENTITY (1,1),
-      [country_id]           smallint      NOT NULL,
-      [date]                 date          NOT NULL UNIQUE,
+      [unemployment_rate_id] INT           NOT NULL IDENTITY (1,1),
+      [country_id]           INT           NOT NULL,
+      [date]                 date          NOT NULL,
       [value]                decimal(10,2) NOT NULL,
 
       CONSTRAINT [PK_Unemployment_Rate] PRIMARY KEY CLUSTERED ([unemployment_rate_id] ASC),
@@ -63,9 +64,9 @@ IF OBJECT_ID('Real_GDP_Growth_Rate', 'U') IS NULL
   BEGIN
     CREATE TABLE [dbo].[Real_GDP_Growth_Rate]
     (
-      [real_gdp_growth_rate_id] int           NOT NULL IDENTITY (1,1),
-      [country_id]              smallint      NOT NULL,
-      [date]                    date          NOT NULL UNIQUE,
+      [real_gdp_growth_rate_id] INT           NOT NULL IDENTITY (1,1),
+      [country_id]              INT           NOT NULL,
+      [date]                    date          NOT NULL,
       [value]                   decimal(20,6) NOT NULL,
 
       CONSTRAINT [PK_Real_GDP_Growth_Rate] PRIMARY KEY CLUSTERED ([real_gdp_growth_rate_id] ASC),
@@ -79,9 +80,9 @@ IF OBJECT_ID('Real_GDP', 'U') IS NULL
   BEGIN
     CREATE TABLE [dbo].[Real_GDP]
     (
-      [real_gdp_id] int           NOT NULL IDENTITY (1,1),
-      [country_id]  smallint      NOT NULL,
-      [date]        date          NOT NULL UNIQUE,
+      [real_gdp_id] INT           NOT NULL IDENTITY (1,1),
+      [country_id]  INT           NOT NULL,
+      [date]        date          NOT NULL,
       [value]       decimal(20,6) NOT NULL,
 
       CONSTRAINT [PK_Real_GDP] PRIMARY KEY CLUSTERED ([real_gdp_id] ASC),
@@ -95,9 +96,9 @@ IF OBJECT_ID('Labor_Cost_Index', 'U') IS NULL
   BEGIN
     CREATE TABLE [dbo].[Labor_Cost_Index]
     (
-      [labor_cost_index_id] int           NOT NULL IDENTITY (1,1),
-      [country_id]          smallint      NOT NULL,
-      [date]                date          NOT NULL UNIQUE,
+      [labor_cost_index_id] INT           NOT NULL IDENTITY (1,1),
+      [country_id]          INT           NOT NULL,
+      [date]                date          NOT NULL,
       [value]               decimal(20,5) NOT NULL,
 
       CONSTRAINT [PK_Labor_Cost_Index] PRIMARY KEY CLUSTERED ([labor_cost_index_id] ASC),
@@ -111,9 +112,9 @@ IF OBJECT_ID('Inflation_Rate', 'U') IS NULL
   BEGIN
     CREATE TABLE [dbo].[Inflation_Rate]
     (
-      [inflation_rate_id] int            NOT NULL IDENTITY (1,1),
-      [country_id]        smallint       NOT NULL,
-      [date]              date           NOT NULL UNIQUE,
+      [inflation_rate_id] INT            NOT NULL IDENTITY (1,1),
+      [country_id]        INT            NOT NULL,
+      [date]              date           NOT NULL,
       [value]             decimal(20,15) NOT NULL,
 
       CONSTRAINT [PK_Inflation_Rate] PRIMARY KEY CLUSTERED ([inflation_rate_id] ASC),
@@ -127,9 +128,9 @@ IF OBJECT_ID('Imports_Of_Goods_And_Services', 'U') IS NULL
   BEGIN
     CREATE TABLE [dbo].[Imports_Of_Goods_And_Services]
     (
-      [imports_of_goods_and_services_id] int            NOT NULL IDENTITY (1,1),
-      [country_id]                       smallint       NOT NULL,
-      [date]                             date           NOT NULL UNIQUE,
+      [imports_of_goods_and_services_id] INT            NOT NULL IDENTITY (1,1),
+      [country_id]                       INT            NOT NULL,
+      [date]                             date           NOT NULL,
       [value]                            decimal(20,13) NOT NULL,
 
       CONSTRAINT [PK_Imports_Of_Goods_And_Services] PRIMARY KEY CLUSTERED ([imports_of_goods_and_services_id] ASC),
@@ -146,9 +147,9 @@ IF OBJECT_ID('Exports_Of_Goods_And_Services', 'U') IS NULL
   BEGIN
     CREATE TABLE [dbo].[Exports_Of_Goods_And_Services]
     (
-      [exports_of_goods_and_services_id] int            NOT NULL IDENTITY (1,1),
-      [country_id]                       smallint       NOT NULL,
-      [date]                             date           NOT NULL UNIQUE,
+      [exports_of_goods_and_services_id] INT            NOT NULL IDENTITY (1,1),
+      [country_id]                       INT            NOT NULL,
+      [date]                             date           NOT NULL,
       [value]                            decimal(20,13) NOT NULL,
 
       CONSTRAINT [PK_Exports_Of_Goods_And_Services] PRIMARY KEY CLUSTERED ([exports_of_goods_and_services_id] ASC),
@@ -165,9 +166,9 @@ IF OBJECT_ID('Business_Registration_Procedures', 'U') IS NULL
   BEGIN
     CREATE TABLE [dbo].[Business_Registration_Procedures]
     (
-      [business_registration_procedures_id] int            NOT NULL IDENTITY (1,1),
-      [country_id]                          smallint       NOT NULL,
-      [date]                                date           NOT NULL UNIQUE,
+      [business_registration_procedures_id] INT            NOT NULL IDENTITY (1,1),
+      [country_id]                          INT            NOT NULL,
+      [date]                                date           NOT NULL,
       [value]                               decimal(18,14) NOT NULL,
 
       CONSTRAINT [PK_Business_Registration_Procedures] PRIMARY KEY CLUSTERED ([business_registration_procedures_id] ASC),

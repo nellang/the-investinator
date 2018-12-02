@@ -35,8 +35,9 @@ public class ExchangeRateService {
         });
     }
 
-    //fetch data from API, process and save them in database
+    //fetch data from API, process and store in database
     private void getExchangeRateData(int currencyID, String apiType, String path) {
+
         //access to exchange rate API from alphavantage in JSON format
         String url;
         String currency = currencyRepository.findById(currencyID).getName();
@@ -83,6 +84,7 @@ public class ExchangeRateService {
                 dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             else
                 dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
             //change date time to local date time
             dateFormat.setTimeZone(timeZone);
             Date localDateTime = new Date();
@@ -93,8 +95,11 @@ public class ExchangeRateService {
             }
 
             double value = rate.getValue().get("4. close").asDouble();
-            if (!exchangeRateRepository.existsById(localDateTime)) {
-                System.out.println(localDateTime + ": 1 " + currency + " = " + value + " USD added!");
+            if (!exchangeRateRepository.existsByDateAndCurrencyID(localDateTime, currencyID)) {
+                if (currency.equals("USD"))
+                    System.out.println(localDateTime + ": 1 " + currency + " = " + value + " EUR added!");
+                else
+                    System.out.println(localDateTime + ": 1 " + currency + " = " + value + " USD added!");
                 exchangeRateRepository.save(new ExchangeRate(localDateTime, currencyID, value));
             }
         }

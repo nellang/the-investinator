@@ -14,18 +14,20 @@ public class DataProcessingController {
     private ExchangeRateService exchangeRateService;
 
     @Autowired
-    private OECDAPIService gdpRateService;
+    private OECDAPIService oecdAPIService;
 
     @Autowired
     private WorldBankAPIService worldBankAPIService;
 
     @GetMapping(value = {"/", "/index"})
-    public void listAllCompanies() {
+    public void getAll() {
         //ModelAndView model = new ModelAndView("index");
         //List<ExchangeRate> exchangeRatesList = exchangeRatesDAO.listAllExchangeRates("Exchange_Rate");
         //model.addObject("exchangeRatesList", exchangeRatesList);
-        gdpRateService.getOECDData("https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/KEI/CPALTT01.",2,".GP.M/all?endTime=");
-        worldBankAPIService.getWorldBankData("NE.IMP.GNFS.ZS",2);
+        //exchangeRateService.saveExchangeRate();
+        oecdAPIService.saveOECDData();
+        worldBankAPIService.saveWorldBankData();
+
         //return model;
     }
 }

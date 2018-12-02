@@ -1,7 +1,7 @@
 package theinvestinator.com.dataprocessing.Model;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "Labor_Cost_Index")
@@ -15,17 +15,16 @@ public class LaborCostIndex {
     @Column(name = "country_id", nullable = false)
     private int countryID;
 
-    @Column(name = "date", nullable = false, unique = true)
-    private Date date;
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
 
     @Column(name = "value", nullable = false)
     private double value;
 
     public LaborCostIndex() {
-
     }
 
-    public LaborCostIndex(int countryID, Date date, double value) {
+    public LaborCostIndex(int countryID, LocalDate date, double value) {
         this.countryID = countryID;
         this.date = date;
         this.value = value;
@@ -55,11 +54,11 @@ public class LaborCostIndex {
         this.value = value;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 }

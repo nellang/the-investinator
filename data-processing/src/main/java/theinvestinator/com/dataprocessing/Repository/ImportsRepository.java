@@ -2,13 +2,13 @@ package theinvestinator.com.dataprocessing.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import theinvestinator.com.dataprocessing.Model.RealGDPRate;
+import theinvestinator.com.dataprocessing.Model.Imports;
 
 import java.time.LocalDate;
 
 @Repository
-public interface RealGDPRateRepository extends JpaRepository<RealGDPRate, Integer> {
-    RealGDPRate save(RealGDPRate gdpRate);
+public interface ImportsRepository extends JpaRepository<Imports, Integer> {
+    Imports save(Imports imports);
 
     boolean existsById(Integer integer);
 

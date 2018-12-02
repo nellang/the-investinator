@@ -1,9 +1,6 @@
 package theinvestinator.com.dataprocessing.Model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -11,8 +8,12 @@ import java.util.Date;
 public class ExchangeRate {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "exchange_rate_id", nullable = false)
-    private Date localDateTime;
+    private int exchangeRateID;
+
+    @Column(name = "date", nullable = false)
+    private Date date;
 
     @Column(name = "currency_id", nullable = false)
     private int currencyID;
@@ -21,21 +22,28 @@ public class ExchangeRate {
     private double value;
 
     public ExchangeRate() {
-
     }
 
-    public ExchangeRate(Date localDateTime, int currencyID, double value) {
-        this.localDateTime = localDateTime;
+    public ExchangeRate(Date date, int currencyID, double value) {
+        this.date = date;
         this.currencyID = currencyID;
         this.value = value;
     }
 
-    public Date getLocalDateTime() {
-        return localDateTime;
+    public int getExchangeRateID() {
+        return exchangeRateID;
     }
 
-    public void setLocalDateTime(Date localDateTime) {
-        this.localDateTime = localDateTime;
+    public void setExchangeRateID(int exchangeRateID) {
+        this.exchangeRateID = exchangeRateID;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public int getCurrencyID() {

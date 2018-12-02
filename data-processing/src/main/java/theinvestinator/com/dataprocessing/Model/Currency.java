@@ -15,8 +15,8 @@ public class Currency {
     private String name;
 
     public Currency() {
-
     }
+
 
     public Currency(int currencyID, String name) {
         this.currencyID = currencyID;

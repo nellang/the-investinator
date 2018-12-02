@@ -7,8 +7,10 @@ import theinvestinator.com.dataprocessing.Model.ExchangeRate;
 import java.util.Date;
 
 @Repository
-public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Date> {
+public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Integer> {
     ExchangeRate save(ExchangeRate exchangeRate);
 
-    boolean existsById(Date localDateTime);
+    boolean existsById(Integer exchangeRateID);
+
+    boolean existsByDateAndCurrencyID(Date date, int currencyID);
 }

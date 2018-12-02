@@ -1,7 +1,7 @@
 package theinvestinator.com.dataprocessing.Model;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "Real_GDP")
@@ -15,17 +15,16 @@ public class RealGDP {
     @Column(name = "country_id", nullable = false)
     private int countryID;
 
-    @Column(name = "date", nullable = false, unique = true)
-    private Date date;
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
 
     @Column(name = "value", nullable = false)
     private double value;
 
     public RealGDP() {
-
     }
 
-    public RealGDP(int countryID, Date date, double value) {
+    public RealGDP(int countryID, LocalDate date, double value) {
         this.countryID = countryID;
         this.date = date;
         this.value = value;
@@ -55,11 +54,11 @@ public class RealGDP {
         this.value = value;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 }

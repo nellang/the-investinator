@@ -21,7 +21,6 @@ public class Country {
     private String abbr;
 
     public Country() {
-
     }
 
     public Country(int currencyID, String name, String abbr) {
