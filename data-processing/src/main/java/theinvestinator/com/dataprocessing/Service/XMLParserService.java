@@ -15,27 +15,20 @@ public class XMLParserService {
 
     //access to API in XML format
     Document xmlParser(String path) {
-        if (path.isEmpty()) {
-            System.out.println("Wrong XML file path!");
-            return null;
-        }
-
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         Document xmlDocument = null;
-        try {
-            if (path.contains("http"))
-                xmlDocument = factory.newDocumentBuilder().parse(new URL(path).openStream());
-            else
-                xmlDocument = factory.newDocumentBuilder().parse(new InputSource(path));
-        } catch (ParserConfigurationException | IOException | SAXException e) {
-            e.printStackTrace();
-        }
 
-        if (xmlDocument == null) {
-            System.out.println("XML not found!");
-            return null;
-        }
+        do {
+            try {
+                if (path.contains("http"))
+                    xmlDocument = factory.newDocumentBuilder().parse(new URL(path).openStream());
+                else
+                    xmlDocument = factory.newDocumentBuilder().parse(new InputSource(path));
+            } catch (ParserConfigurationException | IOException | SAXException e) {
+                e.printStackTrace();
+            }
+        } while (xmlDocument == null);
 
         xmlDocument.getDocumentElement().normalize();
         return xmlDocument;

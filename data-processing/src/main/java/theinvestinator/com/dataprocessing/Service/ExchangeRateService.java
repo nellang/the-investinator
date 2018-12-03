@@ -50,16 +50,13 @@ public class ExchangeRateService {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = null;
 
-        try {
-            rootNode = objectMapper.readTree(new URL(url + "&apikey=XWBDXMKNOIU6106B"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (rootNode == null) {
-            System.out.println("JSON not found!");
-            return;
-        }
+        do {
+            try {
+                rootNode = objectMapper.readTree(new URL(url + "&apikey=XWBDXMKNOIU6106B"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } while (rootNode == null);
 
         //get time zone of API data
         TimeZone timeZone = TimeZone.getDefault();
@@ -76,32 +73,36 @@ public class ExchangeRateService {
         elements = rootNode.path(path).fields();
         while (elements.hasNext()) {
             Map.Entry<String, JsonNode> rate = elements.next();
-            String date = rate.getKey();
-
-            //convert String type from JSON data to Date type
-            SimpleDateFormat dateFormat;
-            if (apiType.contains("INTRADAY"))
-                dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            else
-                dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-            //change date time to local date time
-            dateFormat.setTimeZone(timeZone);
-            Date localDateTime = new Date();
-            try {
-                localDateTime = dateFormat.parse(date);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-
+            Date date = convertStringToDate(rate.getKey(), timeZone);
             double value = rate.getValue().get("4. close").asDouble();
-            if (!exchangeRateRepository.existsByDateAndCurrencyID(localDateTime, currencyID)) {
-                if (currency.equals("USD"))
-                    System.out.println(localDateTime + ": 1 " + currency + " = " + value + " EUR added!");
-                else
-                    System.out.println(localDateTime + ": 1 " + currency + " = " + value + " USD added!");
-                exchangeRateRepository.save(new ExchangeRate(localDateTime, currencyID, value));
+
+            //save in database
+            if (exchangeRateRepository.existsByDateAndCurrencyID(date, currencyID))
+                break;
+            else {
+                System.out.println(date + ": 1 " + currency + " = " + value + (currency.equals("USD") ? " EUR added!" : " USD added!"));
+                exchangeRateRepository.save(new ExchangeRate(date, currencyID, value));
             }
         }
+    }
+
+    //convert time value from String type to Date type
+    private Date convertStringToDate(String time, TimeZone timeZone) {
+        SimpleDateFormat dateFormat;
+        if (time.endsWith("00"))
+            dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        else
+            dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        //change date time to local date time
+        dateFormat.setTimeZone(timeZone);
+        Date date = new Date();
+        try {
+            date = dateFormat.parse(time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return date;
     }
 }

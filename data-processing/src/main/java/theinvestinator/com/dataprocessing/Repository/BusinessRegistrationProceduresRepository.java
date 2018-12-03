@@ -10,8 +10,6 @@ import java.time.LocalDate;
 public interface BusinessRegistrationProceduresRepository extends JpaRepository<BusinessRegistrationProcedures, Integer> {
     BusinessRegistrationProcedures save(BusinessRegistrationProcedures registrationProcedures);
 
-    boolean existsById(Integer integer);
-
     boolean existsByDateAndCountryID(LocalDate date, int countryID);
 
 }

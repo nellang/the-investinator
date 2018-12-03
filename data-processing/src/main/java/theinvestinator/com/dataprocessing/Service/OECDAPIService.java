@@ -9,8 +9,6 @@ import theinvestinator.com.dataprocessing.Model.*;
 import theinvestinator.com.dataprocessing.Repository.*;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Service
 public class OECDAPIService {
@@ -37,105 +35,179 @@ public class OECDAPIService {
 
     //store data in database
     public void saveOECDData() {
+        int currentYear = LocalDate.now().getYear();
         countryRepository.findAll().forEach(country -> {
+            String countryAbbreviation = country.getAbbr().trim();
             int countryID = country.getCountryID();
+            String url = "";
 
             //save GDP Rate
-            System.out.println("GDP rate " + country.getName() + ": ");
-            Map<LocalDate, Double> gdpRateTimeSeriesMap = getOECDData("https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/QNA/", countryID, ".B1_GE.GPSA.Q/all?endTime=");
-            gdpRateTimeSeriesMap.keySet().forEach(date -> {
-                if (!gdpRateRepository.existsByDateAndCountryID(date, countryID)) {
-                    double value = gdpRateTimeSeriesMap.get(date);
-                    System.out.println(date + ": " + value + " added!");
-                    gdpRateRepository.save(new RealGDPRate(countryID, date, value));
-                }
-            });
+            System.out.println("GDP rate " + country.getName() + ":");
+            url = "https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/QNA/" + countryAbbreviation + ".B1_GE.GPSA.Q/all?endTime=" + currentYear;
+            getRealGDPRateData(countryID, url);
 
             //save GDP
-            System.out.println("GDP ppp " + country.getName() + ": ");
-            Map<LocalDate, Double> gdpTimeSeriesMap = getOECDData("https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/QNA/", countryID, ".B1_GE.CPCARSA.Q/all?endTime=");
-            gdpTimeSeriesMap.keySet().forEach(date -> {
-                if (!gdpRepository.existsByDateAndCountryID(date, countryID)) {
-                    double value = gdpTimeSeriesMap.get(date);
-                    System.out.println(date + ": " + value + " added!");
-                    gdpRepository.save(new RealGDP(countryID, date, value));
-                }
-            });
+            System.out.println("GDP ppp " + country.getName() + ":");
+            url = "https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/QNA/" + countryAbbreviation + ".B1_GE.CPCARSA.Q/all?endTime=" + currentYear;
+            getRealGDPData(countryID, url);
 
             //save inflation rate
-            System.out.println("Inflation rate " + country.getName() + ": ");
-            Map<LocalDate, Double> inflationRateTimeSeriesMap = getOECDData("https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/KEI/CPALTT01.", countryID, ".GP.M/all?endTime=");
-            inflationRateTimeSeriesMap.keySet().forEach(date -> {
-                if (!inflationRateRepository.existsByDateAndCountryID(date, countryID)) {
-                    double value = inflationRateTimeSeriesMap.get(date);
-                    System.out.println(date + ": " + value + " added!");
-                    inflationRateRepository.save(new InflationRate(countryID, date, value));
-                }
-            });
+            System.out.println("Inflation rate " + country.getName() + ":");
+            url = "https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/KEI/CPALTT01." + countryAbbreviation + ".GP.M/all?endTime=" + currentYear;
+            getInflationRateData(countryID, url);
 
             //save unemployment rate
             System.out.println("Unemployment rate " + country.getName() + ": ");
-            Map<LocalDate, Double> unemploymentRateTimeSeriesMap = getOECDData("https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/MEI_ARCHIVE/", countryID, ".501.201811.M/all?endTime=");
-            unemploymentRateTimeSeriesMap.keySet().forEach(date -> {
-                if (!unemploymentRateRepository.existsByDateAndCountryID(date, countryID)) {
-                    double value = unemploymentRateTimeSeriesMap.get(date);
-                    System.out.println(date + ": " + value + " added!");
-                    unemploymentRateRepository.save(new UnemploymentRate(countryID, date, value));
-                }
-            });
+            url = "https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/MEI_ARCHIVE/" + countryAbbreviation + ".501.201811.M/all?endTime=" + currentYear;
+            getUnemploymentRateData(countryID, url);
 
             //save labor cost index
             System.out.println("Labor cost index " + country.getName() + ": ");
-            Map<LocalDate, Double> laborCostIndexTimeSeriesMap = getOECDData("https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/ULC_EEQ/", countryID, ".ULQEUL01.IXOBSA.Q/all?endTime=");
-            laborCostIndexTimeSeriesMap.keySet().forEach(date -> {
-                if (!laborCostIndexRepository.existsByDateAndCountryID(date, countryID)) {
-                    double value = laborCostIndexTimeSeriesMap.get(date);
-                    System.out.println(date + ": " + value + " added!");
-                    laborCostIndexRepository.save(new LaborCostIndex(countryID, date, value));
-                }
-            });
+            url = "https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/ULC_EEQ/" + countryAbbreviation + ".ULQEUL01.IXOBSA.Q/all?endTime=" + currentYear;
+            getLaborCostIndexData(countryID, url);
         });
     }
 
-    //fetch data from API and process
-    private Map<LocalDate, Double> getOECDData(String part1, int countryID, String part2) {
+    //fetch real GDP rate from API, process and store in database
+    private void getRealGDPRateData(int countryID, String url) {
 
         //access to OCED API
-        LocalDate date = LocalDate.now();
-        int currentYear = date.getYear();
-        String country = countryRepository.findById(countryID).getAbbr().trim();
-        Document xmlDocument = xmlParserService.xmlParser(part1 + country + part2 + currentYear);
+        Document xmlDocument = xmlParserService.xmlParser(url);
 
         //get time series data
-        Map<LocalDate, Double> timeSeriesMap = new LinkedHashMap<>();
         NodeList observations = xmlDocument.getElementsByTagName("Obs");
-        for (int i = 0; i < observations.getLength(); i++) {
+        for (int i = observations.getLength() - 1; i > 0; i--) {
             Element observation = (Element) observations.item(i);
 
-            //get time value and convert to Date type
-            String time = observation.getElementsByTagName("Time").item(0).getTextContent();
-
-            //quarterly data
-            if (time.contains("Q")) {
-                if (time.contains("Q1"))
-                    date = LocalDate.parse(time.substring(0, 4) + "-03-31");
-                if (time.contains("Q2"))
-                    date = LocalDate.parse(time.substring(0, 4) + "-06-30");
-                if (time.contains("Q3"))
-                    date = LocalDate.parse(time.substring(0, 4) + "-09-30");
-                if (time.contains("Q4"))
-                    date = LocalDate.parse(time.substring(0, 4) + "-12-31");
-            }
-
-            //monthly data
-            else if (time.lastIndexOf('-') == 4)
-                date = LocalDate.parse(time + "-01");
-
-            //save API data in map
+            //save API data in database
+            @SuppressWarnings("DuplicatesGDPRate")
+            LocalDate date = convertStringToLocalDate(observation.getElementsByTagName("Time").item(0).getTextContent());
             double value = Double.valueOf(((Element) observation.getElementsByTagName("ObsValue").item(0)).getAttribute("value"));
-            timeSeriesMap.put(date, value);
+            if (gdpRateRepository.existsByDateAndCountryID(date, countryID))
+                break;
+            else {
+                System.out.println(date + ": " + value + " added!");
+                gdpRateRepository.save(new RealGDPRate(countryID, date, value));
+            }
+        }
+    }
+
+    //fetch real GDP ppp from API, process and store in database
+    private void getRealGDPData(int countryID, String url) {
+
+        //access to OCED API
+        Document xmlDocument = xmlParserService.xmlParser(url);
+
+        //get time series data
+        NodeList observations = xmlDocument.getElementsByTagName("Obs");
+        for (int i = observations.getLength() - 1; i > 0; i--) {
+            Element observation = (Element) observations.item(i);
+
+            //save API data in database
+            @SuppressWarnings(value = "DuplicatesGDP")
+            LocalDate date = convertStringToLocalDate(observation.getElementsByTagName("Time").item(0).getTextContent());
+            double value = Double.valueOf(((Element) observation.getElementsByTagName("ObsValue").item(0)).getAttribute("value"));
+            if (gdpRepository.existsByDateAndCountryID(date, countryID))
+                break;
+            else {
+                System.out.println(date + ": " + value + " added!");
+                gdpRepository.save(new RealGDP(countryID, date, value));
+            }
+        }
+    }
+
+    //fetch inflation rate from API, process and store in database
+    private void getInflationRateData(int countryID, String url) {
+
+        //access to OCED API
+        Document xmlDocument = xmlParserService.xmlParser(url);
+
+        //get time series data
+        NodeList observations = xmlDocument.getElementsByTagName("Obs");
+        for (int i = observations.getLength() - 1; i > 0; i--) {
+            Element observation = (Element) observations.item(i);
+
+            //save API data in database
+            @SuppressWarnings("DuplicatesInflationRate")
+            LocalDate date = convertStringToLocalDate(observation.getElementsByTagName("Time").item(0).getTextContent());
+            double value = Double.valueOf(((Element) observation.getElementsByTagName("ObsValue").item(0)).getAttribute("value"));
+            if (inflationRateRepository.existsByDateAndCountryID(date, countryID))
+                break;
+            else {
+                System.out.println(date + ": " + value + " added!");
+                inflationRateRepository.save(new InflationRate(countryID, date, value));
+            }
+        }
+    }
+
+    //fetch unemployment rate from API, process and store in database
+    private void getUnemploymentRateData(int countryID, String url) {
+
+        //access to OCED API
+        Document xmlDocument = xmlParserService.xmlParser(url);
+
+        //get time series data
+        NodeList observations = xmlDocument.getElementsByTagName("Obs");
+        for (int i = observations.getLength() - 1; i > 0; i--) {
+            Element observation = (Element) observations.item(i);
+
+            //save API data in database
+            @SuppressWarnings(value = "DuplicatesUnemploymentRate")
+            LocalDate date = convertStringToLocalDate(observation.getElementsByTagName("Time").item(0).getTextContent());
+            double value = Double.valueOf(((Element) observation.getElementsByTagName("ObsValue").item(0)).getAttribute("value"));
+            if (unemploymentRateRepository.existsByDateAndCountryID(date, countryID))
+                break;
+            else {
+                System.out.println(date + ": " + value + " added!");
+                unemploymentRateRepository.save(new UnemploymentRate(countryID, date, value));
+            }
+        }
+    }
+
+    //fetch labor cost index from API, process and store in database
+    private void getLaborCostIndexData(int countryID, String url) {
+
+        //access to OCED API
+        Document xmlDocument = xmlParserService.xmlParser(url);
+
+        //get time series data
+        NodeList observations = xmlDocument.getElementsByTagName("Obs");
+        for (int i = observations.getLength() - 1; i > 0; i--) {
+            Element observation = (Element) observations.item(i);
+
+            //save API data in database
+            @SuppressWarnings(value = "DuplicatesLaborCostIndex")
+            LocalDate date = convertStringToLocalDate(observation.getElementsByTagName("Time").item(0).getTextContent());
+            double value = Double.valueOf(((Element) observation.getElementsByTagName("ObsValue").item(0)).getAttribute("value"));
+            if (laborCostIndexRepository.existsByDateAndCountryID(date, countryID))
+                break;
+            else {
+                System.out.println(date + ": " + value + " added!");
+                laborCostIndexRepository.save(new LaborCostIndex(countryID, date, value));
+            }
+        }
+    }
+
+    //convert time value in String type to LocalDate type
+    private LocalDate convertStringToLocalDate(String time) {
+        LocalDate date = LocalDate.now();
+
+        //quarterly data
+        if (time.contains("Q")) {
+            if (time.contains("Q1"))
+                date = LocalDate.parse(time.substring(0, 4) + "-03-31");
+            if (time.contains("Q2"))
+                date = LocalDate.parse(time.substring(0, 4) + "-06-30");
+            if (time.contains("Q3"))
+                date = LocalDate.parse(time.substring(0, 4) + "-09-30");
+            if (time.contains("Q4"))
+                date = LocalDate.parse(time.substring(0, 4) + "-12-31");
         }
 
-        return timeSeriesMap;
+        //monthly data
+        else if (time.lastIndexOf('-') == 4)
+            date = LocalDate.parse(time + "-01");
+
+        return date;
     }
 }

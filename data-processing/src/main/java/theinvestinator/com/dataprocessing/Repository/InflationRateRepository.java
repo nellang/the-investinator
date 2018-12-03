@@ -10,8 +10,6 @@ import java.time.LocalDate;
 public interface InflationRateRepository extends JpaRepository<InflationRate, Integer> {
     InflationRate save(InflationRate inflationRate);
 
-    boolean existsById(Integer integer);
-
     boolean existsByDateAndCountryID(LocalDate date, int countryID);
 
 }

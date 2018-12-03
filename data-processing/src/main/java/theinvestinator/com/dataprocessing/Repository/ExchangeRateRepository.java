@@ -10,7 +10,5 @@ import java.util.Date;
 public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Integer> {
     ExchangeRate save(ExchangeRate exchangeRate);
 
-    boolean existsById(Integer exchangeRateID);
-
     boolean existsByDateAndCurrencyID(Date date, int currencyID);
 }

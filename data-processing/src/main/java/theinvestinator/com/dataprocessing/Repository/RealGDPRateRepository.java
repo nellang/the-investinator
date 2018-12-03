@@ -10,8 +10,6 @@ import java.time.LocalDate;
 public interface RealGDPRateRepository extends JpaRepository<RealGDPRate, Integer> {
     RealGDPRate save(RealGDPRate gdpRate);
 
-    boolean existsById(Integer integer);
-
     boolean existsByDateAndCountryID(LocalDate date, int countryID);
 
 }

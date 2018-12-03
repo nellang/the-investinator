@@ -10,7 +10,7 @@ import java.util.List;
 public interface CurrencyRepository extends JpaRepository<Currency, Integer> {
     Currency save(Currency currency);
 
-    Currency findById(int currency_id);
+    Currency findById(int currencyID);
 
     List<Currency> findAll();
 }

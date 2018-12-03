@@ -10,8 +10,6 @@ import java.time.LocalDate;
 public interface ExportsRepository extends JpaRepository<Exports, Integer> {
     Exports save(Exports exports);
 
-    boolean existsById(Integer integer);
-
     boolean existsByDateAndCountryID(LocalDate date, int countryID);
 
 }

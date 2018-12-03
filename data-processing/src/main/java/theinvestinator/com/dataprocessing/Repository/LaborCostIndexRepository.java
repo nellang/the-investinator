@@ -10,8 +10,6 @@ import java.time.LocalDate;
 public interface LaborCostIndexRepository extends JpaRepository<LaborCostIndex, Integer> {
     LaborCostIndex save(LaborCostIndex laborCostIndex);
 
-    boolean existsById(Integer integer);
-
     boolean existsByDateAndCountryID(LocalDate date, int countryID);
 
 }

@@ -10,7 +10,7 @@ public class UnemploymentRate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "unemployment_rate_id", nullable = false)
-    private int unemployment_rate_ID;
+    private int unemploymentRateID;
 
     @Column(name = "country_id", nullable = false)
     private int countryID;
@@ -30,12 +30,12 @@ public class UnemploymentRate {
         this.value = value;
     }
 
-    public int getUnemployment_rate_ID() {
-        return unemployment_rate_ID;
+    public int getUnemploymentRateID() {
+        return unemploymentRateID;
     }
 
-    public void setUnemployment_rate_ID(int unemployment_rate_ID) {
-        this.unemployment_rate_ID = unemployment_rate_ID;
+    public void setUnemploymentRateID(int unemploymentRateID) {
+        this.unemploymentRateID = unemploymentRateID;
     }
 
     public int getCountryID() {

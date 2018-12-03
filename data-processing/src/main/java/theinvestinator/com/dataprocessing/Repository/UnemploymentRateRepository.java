@@ -10,8 +10,6 @@ import java.time.LocalDate;
 public interface UnemploymentRateRepository extends JpaRepository<UnemploymentRate, Integer> {
     UnemploymentRate save(UnemploymentRate unemploymentRate);
 
-    boolean existsById(Integer integer);
-
     boolean existsByDateAndCountryID(LocalDate date, int countryID);
 
 }

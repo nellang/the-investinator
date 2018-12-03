@@ -25,7 +25,7 @@ public class DataProcessingController {
         //List<ExchangeRate> exchangeRatesList = exchangeRatesDAO.listAllExchangeRates("Exchange_Rate");
         //model.addObject("exchangeRatesList", exchangeRatesList);
         //exchangeRateService.saveExchangeRate();
-        oecdAPIService.saveOECDData();
+        //oecdAPIService.saveOECDData();
         worldBankAPIService.saveWorldBankData();
 
         //return model;

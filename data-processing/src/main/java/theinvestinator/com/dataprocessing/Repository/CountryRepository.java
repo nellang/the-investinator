@@ -10,7 +10,7 @@ import java.util.List;
 public interface CountryRepository extends JpaRepository<Country, Integer> {
     Country save(Country country);
 
-    Country findById(int country_id);
+    Country findById(int countryID);
 
     List<Country> findAll();
 }
