@@ -56,7 +56,7 @@ public class WorldBankAPIService {
 
             //save exports of goods and services
             System.out.println("Exports " + country.getName() + ":");
-            getImportsData(countryID);
+            getExportsData(countryID);
         });
 
         File folder = new File("src/main/resources/static/files/");
