@@ -30,3 +30,10 @@ dependencies {
     compile('com.microsoft.sqlserver:mssql-jdbc')
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
+
+
+task copyToLibs(type: Copy) {
+    into "build/libs"
+    from(configurations.compile)
+}
+stage.dependsOn(copyToLib)
