@@ -39,12 +39,12 @@ public class ExchangeRateService {
     private void getExchangeRateData(int currencyID, String apiType, String path) {
 
         //access to exchange rate API from alphavantage in JSON format
-        String url;
         String currency = currencyRepository.findById(currencyID).getName();
+        String url = "https://www.alphavantage.co/query?function=" + apiType + "&from_symbol=" + currency ;
         if (currency.equals("USD"))
-            url = "https://www.alphavantage.co/query?function=" + apiType + "&from_symbol=" + currency + "&to_symbol=EUR";
+            url += "&to_symbol=EUR";
         else
-            url = "https://www.alphavantage.co/query?function=" + apiType + "&from_symbol=" + currency + "&to_symbol=USD";
+            url += "&to_symbol=USD";
         if (apiType.contains("INTRADAY"))
             url += "&interval=1min";
         ObjectMapper objectMapper = new ObjectMapper();
