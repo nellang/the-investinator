@@ -1,7 +1,8 @@
 .gradle
+gradle/
 build/*
-!build/libs/
 *.ini
+*.log
 
 ### STS ###
 .apt_generated

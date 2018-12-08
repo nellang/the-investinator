@@ -1,1 +1,0 @@
-web: java $JAVA_OPTS -jar build/libs/data-processing-0.0.1.jar -Dserver.port=$PORT $JAR_OPTS

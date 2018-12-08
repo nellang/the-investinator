@@ -1,6 +1,9 @@
 package theinvestinator.com.dataprocessing.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,6 +28,7 @@ import java.util.zip.ZipInputStream;
 
 @Service
 public class WorldBankAPIService {
+    private static final Logger logger = LoggerFactory.getLogger(WorldBankAPIService.class);
 
     @Autowired
     private XMLParserService xmlParserService;
@@ -42,20 +46,21 @@ public class WorldBankAPIService {
     private ExportsRepository exportsRepository;
 
     //store data in database
-    public void saveWorldBankData() {
+    @Scheduled(cron = "0 0 0 L JUN,DEC ? *")
+    private void saveWorldBankData() {
         countryRepository.findAll().forEach(country -> {
             int countryID = country.getCountryID();
 
             //save business registration procedures
-            System.out.println("Business registration procedures " + country.getName() + ":");
+            logger.info("Business registration procedures " + country.getName() + ":");
             getBusinessRegistrationProceduresData(countryID);
 
             //save imports of goods and services
-            System.out.println("Imports " + country.getName() + ":");
+            logger.info("Imports " + country.getName() + ":");
             getImportsData(countryID);
 
             //save exports of goods and services
-            System.out.println("Exports " + country.getName() + ":");
+            logger.info("Exports " + country.getName() + ":");
             getExportsData(countryID);
         });
 
@@ -85,7 +90,7 @@ public class WorldBankAPIService {
                 if (registrationProceduresRepository.existsByDateAndCountryID(date, countryID))
                     break;
                 else if (value != -1) {
-                    System.out.println(date + ": " + value + " added!");
+                    logger.info(date + ": " + value + " added!");
                     registrationProceduresRepository.save(new BusinessRegistrationProcedures(countryID, date, value));
                 }
             }
@@ -112,7 +117,7 @@ public class WorldBankAPIService {
                 if (importsRepository.existsByDateAndCountryID(date, countryID))
                     break;
                 else if (value != -1) {
-                    System.out.println(date + ": " + value + " added!");
+                    logger.info(date + ": " + value + " added!");
                     importsRepository.save(new Imports(countryID, date, value));
                 }
             }
@@ -139,7 +144,7 @@ public class WorldBankAPIService {
                 if (exportsRepository.existsByDateAndCountryID(date, countryID))
                     break;
                 else if (value != -1) {
-                    System.out.println(date + ": " + value + " added!");
+                    logger.info(date + ": " + value + " added!");
                     exportsRepository.save(new Exports(countryID, date, value));
                 }
             }
