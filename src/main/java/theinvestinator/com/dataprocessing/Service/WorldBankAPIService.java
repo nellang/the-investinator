@@ -17,6 +17,8 @@ import theinvestinator.com.dataprocessing.Repository.CountryRepository;
 import theinvestinator.com.dataprocessing.Repository.ExportsRepository;
 import theinvestinator.com.dataprocessing.Repository.ImportsRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,8 +47,11 @@ public class WorldBankAPIService {
     @Autowired
     private ExportsRepository exportsRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     //store data in database
-    @Scheduled(cron = "0 0 0 L JUN,DEC ? *")
+    @Scheduled(cron = "0 0 0 1 JAN,JUL ?")
     private void saveWorldBankData() {
         countryRepository.findAll().forEach(country -> {
             int countryID = country.getCountryID();
@@ -63,6 +68,9 @@ public class WorldBankAPIService {
             logger.info("Exports " + country.getName() + ":");
             getExportsData(countryID);
         });
+        entityManager.createNativeQuery("EXEC sp_add_business_registration_procedures");
+        entityManager.createNativeQuery("EXEC sp_add_exports");
+        entityManager.createNativeQuery("EXEC sp_add_imports");
 
         File folder = new File("src/main/resources/static/files/");
         for (File file : folder.listFiles())
@@ -163,7 +171,7 @@ public class WorldBankAPIService {
             if (!new File(path).exists()) {
                 //extract the zip file
                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(path));
-                byte[] bytesIn = new byte[4096];
+                byte[] bytesIn = new byte[5120];
                 int read = 0;
                 while ((read = zipIn.read(bytesIn)) != -1)
                     bufferedOutputStream.write(bytesIn, 0, read);

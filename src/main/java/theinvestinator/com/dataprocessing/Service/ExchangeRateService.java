@@ -11,6 +11,8 @@ import theinvestinator.com.dataprocessing.Model.ExchangeRate;
 import theinvestinator.com.dataprocessing.Repository.CurrencyRepository;
 import theinvestinator.com.dataprocessing.Repository.ExchangeRateRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
@@ -31,8 +33,11 @@ public class ExchangeRateService {
     @Autowired
     private CurrencyRepository currencyRepository;
 
-    @Scheduled(cron = "0 0 0/3 ? * MON-FRI *")
-    @Scheduled(cron = "0 * 4 ? * SUN,SAT *")
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Scheduled(cron = "0 0 0/3 ? * MON-FRI")
+    @Scheduled(cron = "0 0 0 ? * SUN,SAT", zone = "GMT+8")
     private void saveDailyExchangeRate() {
         currencyRepository.findAll().forEach(currency -> {
             int currencyID = currency.getCurrencyID();
@@ -40,9 +45,10 @@ public class ExchangeRateService {
             getExchangeRateData(currencyID, "FX_INTRADAY", "Time Series FX (1min)");
             getExchangeRateData(currencyID, "FX_DAILY", "Time Series FX (Daily)");
         });
+        entityManager.createNativeQuery("EXEC sp_add_exchange_rate");
     }
 
-    @Scheduled(cron = "0 15 11 ? * * *")
+    @Scheduled(cron = "0 15 8 ? * *", zone = "GMT+8")
     private void saveMonthlyExchangeRate() {
         currencyRepository.findAll().forEach(currency -> {
             int currencyID = currency.getCurrencyID();
