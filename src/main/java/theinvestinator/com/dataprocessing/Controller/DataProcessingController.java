@@ -1,17 +1,20 @@
 package theinvestinator.com.dataprocessing.Controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RequestMapping;
+import theinvestinator.com.dataprocessing.Service.OECDAPIService;
 
 @Controller
 public class DataProcessingController {
 
-    @GetMapping(value = {"/", "/index"})
-    public ModelAndView getAll() {
-        ModelAndView model = new ModelAndView("index");
-        //List<ExchangeRate> exchangeRatesList = exchangeRatesDAO.listAllExchangeRates("Exchange_Rate");
-        //model.addObject("exchangeRatesList", exchangeRatesList);
-        return model;
+    @Autowired
+    OECDAPIService service;
+
+    @RequestMapping(value = "/")
+    public String index() {
+        service.saveOECDMonthlyData();
+        service.saveOECDQuarterlyData();
+        return "index";
     }
 }

@@ -43,8 +43,8 @@ public class OECDAPIService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Scheduled(cron = "0 0 0 1 JAN,APR,JUL,OCT ?")
-    private void saveOECDQuarterlyData() {
+    @Scheduled(cron = "0 0 0 1 1/3 ?")
+    public void saveOECDQuarterlyData() {
         int currentYear = LocalDate.now().getYear();
         countryRepository.findAll().forEach(country -> {
             String countryAbbreviation = country.getAbbr().trim();
@@ -72,8 +72,8 @@ public class OECDAPIService {
         entityManager.createNativeQuery("EXEC sp_add_labor_cost_index");
     }
 
-    @Scheduled(cron = "0 15 8 ? * *", zone = "GMT+8")
-    private void saveOECDMonthlyData() {
+    @Scheduled(cron = "0 0 0 1 1/1 ?")
+    public void saveOECDMonthlyData() {
         int currentYear = LocalDate.now().getYear();
         countryRepository.findAll().forEach(country -> {
             String countryAbbreviation = country.getAbbr().trim();

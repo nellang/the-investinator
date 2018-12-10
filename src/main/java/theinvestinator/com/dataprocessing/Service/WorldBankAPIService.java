@@ -51,8 +51,8 @@ public class WorldBankAPIService {
     private EntityManager entityManager;
 
     //store data in database
-    @Scheduled(cron = "0 0 0 1 JAN,JUL ?")
-    private void saveWorldBankData() {
+    @Scheduled(cron = "0 0 0 1 1/6 ?")
+    public void saveWorldBankData() {
         countryRepository.findAll().forEach(country -> {
             int countryID = country.getCountryID();
 

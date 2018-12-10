@@ -319,14 +319,14 @@ END;
                 CREATE OR ALTER PROCEDURE sp_add_exchange_rate AS
                 BEGIN
                   SET NOCOUNT ON
-                  INSERT INTO Merged_Table(country, date, currency, exchange_rate)
+                  INSERT INTO Merged_Table(country, datetime, currency, exchange_rate)
                   SELECT c.name, e.date, r.name, e.value
                   FROM (Country c
                     LEFT OUTER JOIN Currency r ON c.currency_id = r.currency_id)
                          LEFT OUTER JOIN Exchange_Rate e ON c.currency_id = e.currency_id
-                  WHERE NOT EXISTS(SELECT country, date, exchange_rate
+                  WHERE NOT EXISTS(SELECT country, datetime, exchange_rate
                                    FROM Merged_Table m
                                    WHERE m.country = c.name
-                                     AND m.date = e.date
+                                     AND m.datetime = e.date
                                      AND m.exchange_rate = e.value)
                 END;

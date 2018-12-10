@@ -36,25 +36,34 @@ public class ExchangeRateService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Scheduled(cron = "0 0 0/3 ? * MON-FRI")
-    @Scheduled(cron = "0 0 0 ? * SUN,SAT", zone = "GMT+8")
-    private void saveDailyExchangeRate() {
+    @Scheduled(cron = "0 0 0/3 1/1 * ?")
+    public void saveIntradayExchangeRate() {
+        currencyRepository.findAll().forEach(currency -> {
+            int currencyID = currency.getCurrencyID();
+            logger.info("Intraday Exchange Rate " + currency.getName() + ":");
+            getExchangeRateData(currencyID, "FX_INTRADAY", "Time Series FX (1min)");
+        });
+        entityManager.createNativeQuery("EXEC sp_add_exchange_rate");
+    }
+
+    @Scheduled(cron = "0 15 8 1/1 * ?", zone = "GMT+8")
+    public void saveDailyExchangeRate() {
         currencyRepository.findAll().forEach(currency -> {
             int currencyID = currency.getCurrencyID();
             logger.info("Daily Exchange Rate " + currency.getName() + ":");
-            getExchangeRateData(currencyID, "FX_INTRADAY", "Time Series FX (1min)");
             getExchangeRateData(currencyID, "FX_DAILY", "Time Series FX (Daily)");
         });
         entityManager.createNativeQuery("EXEC sp_add_exchange_rate");
     }
 
-    @Scheduled(cron = "0 15 8 ? * *", zone = "GMT+8")
-    private void saveMonthlyExchangeRate() {
+    @Scheduled(cron = "0 0 0 1 1/1 ?")
+    public void saveMonthlyExchangeRate() {
         currencyRepository.findAll().forEach(currency -> {
             int currencyID = currency.getCurrencyID();
             logger.info("Monthly Exchange Rate " + currency.getName() + ":");
             getExchangeRateData(currencyID, "FX_MONTHLY", "Time Series FX (Monthly)");
         });
+        entityManager.createNativeQuery("EXEC sp_add_exchange_rate");
     }
 
     //fetch data from API, process and store in database
