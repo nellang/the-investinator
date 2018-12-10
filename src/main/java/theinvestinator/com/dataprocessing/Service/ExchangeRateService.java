@@ -73,7 +73,7 @@ public class ExchangeRateService {
         url += currency.equals("USD") ? "&to_symbol=EUR" : "&to_symbol=USD";
         if (apiType.contains("INTRADAY"))
             url += "&interval=1min";
-        JsonNode rootNode = accessExchangeRateAPI(url + "&apikey=XWBDXMKNOIU6106B");
+        JsonNode rootNode = accessExchangeRateAPI(url + "&apikey=XWBDXMKNOIU6106B", path);
 
         //get time zone of API data
         TimeZone timeZone = TimeZone.getDefault();
@@ -116,7 +116,7 @@ public class ExchangeRateService {
     }
 
     //access to exchange rate API from alphavantage in JSON format
-    private JsonNode accessExchangeRateAPI(String url) {
+    private JsonNode accessExchangeRateAPI(String url, String path) {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = null;
 
@@ -127,9 +127,9 @@ public class ExchangeRateService {
         }
 
         if (rootNode == null)
-            return accessExchangeRateAPI(url);
-        else if (rootNode.path("Meta Data").isNull())
-            return accessExchangeRateAPI(url);
+            return accessExchangeRateAPI(url, path);
+        else if (rootNode.path(path).isNull())
+            return accessExchangeRateAPI(url, path);
         else return rootNode;
     }
 
