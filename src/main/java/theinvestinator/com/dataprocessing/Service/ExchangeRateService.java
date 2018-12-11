@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import theinvestinator.com.dataprocessing.Model.ExchangeRate;
 import theinvestinator.com.dataprocessing.Repository.CurrencyRepository;
 import theinvestinator.com.dataprocessing.Repository.ExchangeRateRepository;
@@ -17,7 +18,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,6 +36,7 @@ public class ExchangeRateService {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Transactional
     @Scheduled(cron = "0 0 0/3 1/1 * ?")
     public void saveIntradayExchangeRate() {
         currencyRepository.findAll().forEach(currency -> {
@@ -43,9 +44,10 @@ public class ExchangeRateService {
             logger.info("Intraday Exchange Rate " + currency.getName() + ":");
             getExchangeRateData(currencyID, "FX_INTRADAY", "Time Series FX (1min)");
         });
-        entityManager.createNativeQuery("EXEC sp_add_exchange_rate");
+        entityManager.createNativeQuery("EXEC sp_add_exchange_rate").executeUpdate();
     }
 
+    @Transactional
     @Scheduled(cron = "0 15 8 1/1 * ?", zone = "GMT+8")
     public void saveDailyExchangeRate() {
         currencyRepository.findAll().forEach(currency -> {
@@ -53,9 +55,10 @@ public class ExchangeRateService {
             logger.info("Daily Exchange Rate " + currency.getName() + ":");
             getExchangeRateData(currencyID, "FX_DAILY", "Time Series FX (Daily)");
         });
-        entityManager.createNativeQuery("EXEC sp_add_exchange_rate");
+        entityManager.createNativeQuery("EXEC sp_add_exchange_rate").executeUpdate();
     }
 
+    @Transactional
     @Scheduled(cron = "0 0 0 1 1/1 ?")
     public void saveMonthlyExchangeRate() {
         currencyRepository.findAll().forEach(currency -> {
@@ -63,7 +66,7 @@ public class ExchangeRateService {
             logger.info("Monthly Exchange Rate " + currency.getName() + ":");
             getExchangeRateData(currencyID, "FX_MONTHLY", "Time Series FX (Monthly)");
         });
-        entityManager.createNativeQuery("EXEC sp_add_exchange_rate");
+        entityManager.createNativeQuery("EXEC sp_add_exchange_rate").executeUpdate();
     }
 
     //fetch data from API, process and store in database
@@ -88,27 +91,21 @@ public class ExchangeRateService {
 
         //save API data in database
         elements = rootNode.path(path).fields();
-        outerLoop:
         while (elements.hasNext()) {
             Map.Entry<String, JsonNode> rate = elements.next();
-
-            if (apiType.contains("MONTHLY")) {
-                int currentYear = LocalDate.now().getYear();
-                for (int i = 0; i < 5; i++) {
-                    int month = LocalDate.now().getMonth().minus(i).getValue();
-                    if (rate.getKey().substring(0, 7).equals(currentYear + (month < 10 ? "-0" : "-") + month)) {
-                        continue outerLoop;
-                    }
-                }
-            }
-
             Date date = convertStringToDate(rate.getKey(), timeZone);
-            double value = rate.getValue().get("4. close").asDouble();
+            if (apiType.contains("MONTHLY"))
+                if (date.after(exchangeRateRepository.findTopByCurrencyIDOrderByDate(currencyID).getDate()))
+                    continue;
+            if (apiType.contains("DAILY"))
+                if (date.equals(new Date()))
+                    continue;
 
             //save in database
-            if (exchangeRateRepository.existsByDateAndCurrencyID(date, currencyID)) {
+            double value = rate.getValue().get("4. close").asDouble();
+            if (exchangeRateRepository.existsByDateAndCurrencyID(date, currencyID))
                 break;
-            } else {
+            else {
                 logger.info(date + ": 1 " + currency + " = " + value + (currency.equals("USD") ? " EUR added!" : " USD added!"));
                 exchangeRateRepository.save(new ExchangeRate(date, currencyID, value));
             }

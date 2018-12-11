@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,6 +52,7 @@ public class WorldBankAPIService {
     private EntityManager entityManager;
 
     //store data in database
+    @Transactional
     @Scheduled(cron = "0 0 0 1 1/6 ?")
     public void saveWorldBankData() {
         countryRepository.findAll().forEach(country -> {
@@ -68,9 +70,9 @@ public class WorldBankAPIService {
             logger.info("Exports " + country.getName() + ":");
             getExportsData(countryID);
         });
-        entityManager.createNativeQuery("EXEC sp_add_business_registration_procedures");
-        entityManager.createNativeQuery("EXEC sp_add_exports");
-        entityManager.createNativeQuery("EXEC sp_add_imports");
+        entityManager.createNativeQuery("EXEC sp_add_business_registration_procedures").executeUpdate();
+        entityManager.createNativeQuery("EXEC sp_add_exports").executeUpdate();
+        entityManager.createNativeQuery("EXEC sp_add_imports").executeUpdate();
 
         File folder = new File("src/main/resources/static/files/");
         for (File file : folder.listFiles())

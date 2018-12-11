@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -43,6 +44,7 @@ public class OECDAPIService {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Transactional
     @Scheduled(cron = "0 0 0 1 1/3 ?")
     public void saveOECDQuarterlyData() {
         int currentYear = LocalDate.now().getYear();
@@ -67,11 +69,12 @@ public class OECDAPIService {
             getLaborCostIndexData(countryID, url);
         });
 
-        entityManager.createNativeQuery("EXEC sp_add_real_gdp_rate");
-        entityManager.createNativeQuery("EXEC sp_add_real_gdp");
-        entityManager.createNativeQuery("EXEC sp_add_labor_cost_index");
+        entityManager.createNativeQuery("EXEC sp_add_real_gdp_rate").executeUpdate();
+        entityManager.createNativeQuery("EXEC sp_add_real_gdp").executeUpdate();
+        entityManager.createNativeQuery("EXEC sp_add_labor_cost_index").executeUpdate();
     }
 
+    @Transactional
     @Scheduled(cron = "0 0 0 1 1/1 ?")
     public void saveOECDMonthlyData() {
         int currentYear = LocalDate.now().getYear();
@@ -90,8 +93,8 @@ public class OECDAPIService {
             url = "https://stats.oecd.org/restsdmx/sdmx.ashx/GetData/MEI_ARCHIVE/" + countryAbbreviation + ".501.201811.M/all?endTime=" + currentYear;
             getUnemploymentRateData(countryID, url);
         });
-        entityManager.createNativeQuery("EXEC sp_add_inflation_rate");
-        entityManager.createNativeQuery("EXEC sp_add_unemployment_rate");
+        entityManager.createNativeQuery("EXEC sp_add_inflation_rate").executeUpdate();
+        entityManager.createNativeQuery("EXEC sp_add_unemployment_rate").executeUpdate();
     }
 
     //fetch inflation rate from API, process and store in database
