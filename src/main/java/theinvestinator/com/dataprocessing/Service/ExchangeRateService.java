@@ -48,7 +48,7 @@ public class ExchangeRateService {
     }
 
     @Transactional
-    @Scheduled(cron = "0 15 8 1/1 * ?", zone = "GMT+8")
+    @Scheduled(cron = "0 15 8 1/1 * ?", zone = "Etc/GMT+8")
     public void saveDailyExchangeRate() {
         currencyRepository.findAll().forEach(currency -> {
             int currencyID = currency.getCurrencyID();

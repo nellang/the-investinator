@@ -2,7 +2,7 @@
 gradle/
 build/*
 *.ini
-*.log
+logs/*
 
 ### STS ###
 .apt_generated
