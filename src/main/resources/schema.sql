@@ -187,8 +187,8 @@ IF OBJECT_ID('Merged_Table', 'U') IS NULL
     CREATE TABLE Merged_Table
     (
       [country]                          VARCHAR(50),
-      [date]                             DATE,
-      [datetime]                         DATETIME,
+      [currency]                         CHAR(10),
+      [date]                             DATETIME,
       [business_registration_procedures] DECIMAL(10, 2),
       [exports]                          DECIMAL(20, 13),
       [imports]                          DECIMAL(20, 13),
@@ -197,7 +197,6 @@ IF OBJECT_ID('Merged_Table', 'U') IS NULL
       [gdp]                              DECIMAL(20, 6),
       [gdp_rate]                         DECIMAL(20, 6),
       [unemployment_rate]                DECIMAL(10, 2),
-      [currency]                         CHAR(10),
       [exchange_rate]                    DECIMAL(10, 5)
     )
   END;
@@ -319,14 +318,14 @@ END;
                 CREATE OR ALTER PROCEDURE sp_add_exchange_rate AS
                 BEGIN
                   SET NOCOUNT ON
-                  INSERT INTO Merged_Table(country, datetime, currency, exchange_rate)
+                  INSERT INTO Merged_Table(country, date, currency, exchange_rate)
                   SELECT c.name, e.date, r.name, e.value
                   FROM (Country c
                     LEFT OUTER JOIN Currency r ON c.currency_id = r.currency_id)
                          LEFT OUTER JOIN Exchange_Rate e ON c.currency_id = e.currency_id
-                  WHERE NOT EXISTS(SELECT country, datetime, exchange_rate
+                  WHERE NOT EXISTS(SELECT country, date, exchange_rate
                                    FROM Merged_Table m
                                    WHERE m.country = c.name
-                                     AND m.datetime = e.date
+                                     AND m.date = e.date
                                      AND m.exchange_rate = e.value)
                 END;

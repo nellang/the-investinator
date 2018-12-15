@@ -76,7 +76,7 @@ public class ExchangeRateService {
         url += currency.equals("USD") ? "&to_symbol=EUR" : "&to_symbol=USD";
         if (apiType.contains("INTRADAY"))
             url += "&interval=1min";
-        JsonNode rootNode = accessExchangeRateAPI(url + "&apikey=XWBDXMKNOIU6106B", path);
+        JsonNode rootNode = accessExchangeRateAPI(url + "&apikey=XWBDXMKNOIU6106B");
 
         //get time zone of API data
         TimeZone timeZone = TimeZone.getDefault();
@@ -94,11 +94,8 @@ public class ExchangeRateService {
         while (elements.hasNext()) {
             Map.Entry<String, JsonNode> rate = elements.next();
             Date date = convertStringToDate(rate.getKey(), timeZone);
-            if (apiType.contains("MONTHLY"))
-                if (date.after(exchangeRateRepository.findTopByCurrencyIDOrderByDate(currencyID).getDate()))
-                    continue;
-            if (apiType.contains("DAILY"))
-                if (date.equals(new Date()))
+            if (!apiType.contains("INTRADAY"))
+                if (!date.before(exchangeRateRepository.findTopByCurrencyIDOrderByDate(currencyID).getDate()))
                     continue;
 
             //save in database
@@ -113,21 +110,26 @@ public class ExchangeRateService {
     }
 
     //access to exchange rate API from alphavantage in JSON format
-    private JsonNode accessExchangeRateAPI(String url, String path) {
+    private JsonNode accessExchangeRateAPI(String url) {
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = null;
+        JsonNode rootNode;
 
         try {
             rootNode = objectMapper.readTree(new URL(url));
         } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
+            }
+            return accessExchangeRateAPI(url);
         }
 
         if (rootNode == null)
-            return accessExchangeRateAPI(url, path);
-        else if (rootNode.path(path).isNull())
-            return accessExchangeRateAPI(url, path);
-        else return rootNode;
+            return accessExchangeRateAPI(url);
+        else if (rootNode.path("Meta Data").isNull())
+            return accessExchangeRateAPI(url);
+        return rootNode;
     }
 
     //convert time value from String type to Date type
@@ -135,7 +137,8 @@ public class ExchangeRateService {
         SimpleDateFormat dateFormat = time.endsWith(":00") ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss") : new SimpleDateFormat("yyyy-MM-dd");
 
         //change date time to local date time
-        dateFormat.setTimeZone(timeZone);
+        if (time.endsWith(":00"))
+            dateFormat.setTimeZone(timeZone);
         Date date = new Date();
         try {
             date = dateFormat.parse(time);
